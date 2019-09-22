@@ -1,0 +1,37 @@
+version: '2'
+services:
+   web:
+       image: nginx:latest
+       restart: unless-stopped
+       ports:
+           - "8082:80"
+       volumes:
+           - ./web:/code
+           - ./docker/nginx/default:/etc/nginx/sites-available/default
+           - ./docker/nginx/default:/etc/nginx/conf.d/default.conf
+           - ./docker/nginx/default:/etc/nginx/sites-enabled/default
+       links:
+           - php
+   php:
+       image: php:7-fpm
+       restart: unless-stopped
+       volumes:
+           - ./web:/code
+       links:
+           - mysql
+   
+   mysql:
+       image: mysql:5.7
+       environment:
+           MYSQL_ROOT_PASSWORD: root
+           MYSQL_DATABASE: uie
+           MYSQL_USER: root
+       ports:
+           - "33006:3306"
+       volumes:
+           - ./docker/mysql:/var/lib/mysql
+   redis:
+        image: sickp/alpine-redis:3.2.2
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
